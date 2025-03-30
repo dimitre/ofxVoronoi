@@ -8,7 +8,7 @@ class ofApp : public ofBaseApp{
 private:
 
     // For legacy openGL format change OF_USE_LEGACY_VECTOR_MATH to 1 in ofConstants.h
-    // and also you could use explicit ofPoint instead of glm:vec3 in ofApp.hpp and ofApp.cpp
+    // and also you could use explicit glm::vec2 instead of glm:vec3 in ofApp.hpp and ofApp.cpp
     vector<ofDefaultVec3> points;
     ofxVoronoi voronoi;
 
@@ -29,5 +29,5 @@ public:
     void windowResized(int w, int h);
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
-    
+
 };
