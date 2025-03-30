@@ -18,7 +18,7 @@ void ofApp::setup(){
     // Add Random points
     int pointCount = 25;
     int seed = 33;
-    ofSeedRandom(seed);
+    ofSetRandomSeed(seed);
     for(int i=0; i<pointCount; i++) {
         ofDefaultVec3 newPoint = ofDefaultVec3( ofRandom(voronoi.getBounds().x, voronoi.getBounds().width), ofRandom(voronoi.getBounds().y, voronoi.getBounds().height), 0 );
         points.push_back(newPoint);

@@ -40,14 +40,14 @@ void ofxVoronoi::generate(bool ordered) {
 
         // assume wall will calculate vector back to 0,0
         // so we need to give normal vector [x, y]
-		glm::vec2 normalised { getNormalised(currP,nextP) };
 		
-		glm::vec2 perp = getNormalised(currP,nextP);
+		glm::vec2 normalised { glm::normalize(nextP - currP) };
+		glm::vec2 perp { normalised }; // already calculated
+
 		perp = getPerpendicular(perp);
 		perp = getPerpendicular(perp);
 		perp = getPerpendicular(perp);
 		
-//        ofVec2f perp = ofVec2f( getNormalised(currP,nextP) ).getPerpendicular().getPerpendicular().getPerpendicular();
 		glm::vec2 normalV { perp };
 		glm::vec2 topLeft { 0.0f, 0.0f };
 		glm::vec2 offsetV { intersection(topLeft, normalV, currP, nextP) };
@@ -79,20 +79,20 @@ void ofxVoronoi::generate(bool ordered) {
 
                 // Get the current point of the cell
                 double* currentPoint = con->p[vl->ij]+con->ps*vl->q;
-                newCell.centroid = ofDefaultVec3(currentPoint[0], currentPoint[1], 0);
+				newCell.centroid = { currentPoint[0], currentPoint[1], 0.0f };
 
                 // Get the edgepoints of the cell
                 do {
-                    float x = currentPoint[0] + 0.5 * conCell.pts[2*k];
-                    float y = currentPoint[1] + 0.5 * conCell.pts[2*k+1];
-
-                    ofDefaultVec3 pt = ofDefaultVec3(x, y, 0);
-                    newCell.points.push_back(pt);
+                    newCell.points.emplace_back(
+												currentPoint[0] + 0.5 * conCell.pts[2*k],
+												currentPoint[1] + 0.5 * conCell.pts[2*k+1],
+												0.0f
+												);
 
                     k = conCell.ed[2*k];
                 } while(k!=0);
 
-                cells.push_back(newCell);
+                cells.emplace_back(newCell);
             }
         } while(vl->inc());
     }
@@ -102,9 +102,9 @@ void ofxVoronoi::generate(bool ordered) {
 
     if(ordered) {
         std::vector<ofxVoronoiCell> orderedCells;
-        for(auto& p : points) {
+        for(const auto & p : points) {
             // ofLog() << p;
-            orderedCells.push_back(getCell(p));
+            orderedCells.emplace_back(getCell(p));
         }
         cells = orderedCells;
     }
@@ -157,7 +157,7 @@ void ofxVoronoi::setPoints(std::vector<ofDefaultVec3> _points) {
 
 //--------------------------------------------------------------
 void ofxVoronoi::addPoint(ofDefaultVec3 _point) {
-    points.push_back(_point);
+    points.emplace_back(_point);
 }
 
 //--------------------------------------------------------------
@@ -190,7 +190,7 @@ void ofxVoronoi::relax(){
         }
         line.close();
         ofDefaultVec3 centroid = line.getCentroid2D();
-        relaxPts.push_back(centroid);
+        relaxPts.emplace_back(centroid);
     }
     clear();
     points = relaxPts;
@@ -200,10 +200,10 @@ void ofxVoronoi::relax(){
 //--------------------------------------------------------------
 ofxVoronoiCell& ofxVoronoi::getCell(ofDefaultVec3 _point, bool approximate) {
     if(approximate) {
-        ofxVoronoiCell& nearestCell = cells[0];
+		ofxVoronoiCell& nearestCell { cells[0] };
         float nearestDistance = numeric_limits<float>::infinity();
-        for(ofxVoronoiCell& cell : cells) {
-			float distance = glm::distance(_point, cell.centroid);
+        for(const auto & cell : cells) {
+			float distance { glm::distance(_point, cell.centroid) };
             if(distance < nearestDistance) {
                 nearestDistance = distance;
                 nearestCell = cell;
@@ -211,7 +211,7 @@ ofxVoronoiCell& ofxVoronoi::getCell(ofDefaultVec3 _point, bool approximate) {
         }
         return nearestCell;
     } else {
-        for(ofxVoronoiCell& cell : cells) {
+        for(auto & cell : cells) {
             if(_point == cell.centroid) {
                 return cell;
             }
@@ -245,20 +245,9 @@ glm::vec2 ofxVoronoi::intersection(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, glm
     return ret;
 }
 
-glm::vec2 ofxVoronoi::getNormalised(glm::vec2 p1, glm::vec2 p2) {
-	return glm::normalize(p2 - p1);
-}
-
-glm::vec2 ofxVoronoi::getMidPoint(glm::vec2 p1, glm::vec2 p2) {
-	return (p1 + p2) / 2.0f;
-}
-
-double ofxVoronoi::getRadians(glm::vec2 p1, glm::vec2 p2) {
-    return atan2(p1.y - p2.y, p1.x - p2.x);
-}
 
 double ofxVoronoi::getDegrees(glm::vec2 p1, glm::vec2 p2) {
-    return getRadians(p1, p2) * 180.0 / glm::pi<float>();
+    return glm::degrees(atan2(p1.y - p2.y, p1.x - p2.x));
 }
 
 double ofxVoronoi::getPositiveDegrees(glm::vec2 p1, glm::vec2 p2) {

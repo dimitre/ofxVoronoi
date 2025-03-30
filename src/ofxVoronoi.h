@@ -83,15 +83,12 @@ private:
     std::vector<ofxVoronoiCell> cells;                 ///< The list of Voronoi cells.
     glm::vec2 intersection(glm::vec2 p1, glm::vec2 p2,
                          glm::vec2 p3, glm::vec2 p4);      ///< Auxiliar method for calculating virtual intersection
-    glm::vec2 getNormalised(glm::vec2 p1, glm::vec2 p2);     ///< Auxiliar method for normalising vectors
-    glm::vec2 getMidPoint(glm::vec2 p1, glm::vec2 p2);       ///< Auxiliar method for calculating mid point
-    double getRadians(glm::vec2 p1, glm::vec2 p2);         ///< Auxiliar method for radians calculation
+
     double getDegrees(glm::vec2 p1, glm::vec2 p2);         ///< Auxiliar method for degrees calculation
     double getPositiveDegrees(glm::vec2 p1, glm::vec2 p2); ///< Auxiliar method for degrees calculation
 
 	inline glm::vec2 getPerpendicular(const glm::vec2 p) const {
-//		float length = std::sqrt( p.x * p.x + p.y * p.y );
-		float length = glm::length( p );
+		float length { glm::length( p ) };
 		if( length > 0 )
 			return { -(p.y/length), p.x/length };
 		else
