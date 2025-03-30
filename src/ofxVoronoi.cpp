@@ -203,7 +203,6 @@ ofxVoronoiCell& ofxVoronoi::getCell(ofDefaultVec3 _point, bool approximate) {
         ofxVoronoiCell& nearestCell = cells[0];
         float nearestDistance = numeric_limits<float>::infinity();
         for(ofxVoronoiCell& cell : cells) {
-//            float distance = getDistance(_point, cell.centroid);
 			float distance = glm::distance(_point, cell.centroid);
             if(distance < nearestDistance) {
                 nearestDistance = distance;
@@ -224,7 +223,7 @@ ofxVoronoiCell& ofxVoronoi::getCell(ofDefaultVec3 _point, bool approximate) {
 
 glm::vec2 ofxVoronoi::intersection(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, glm::vec2 p4) {
 
-    glm::vec2 ret((double)-1,(double)-1);
+    glm::vec2 ret(-1.0,-1.0);
 
     // Store the values for fast access and easy
     // equations-to-code conversion
@@ -247,12 +246,11 @@ glm::vec2 ofxVoronoi::intersection(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, glm
 }
 
 glm::vec2 ofxVoronoi::getNormalised(glm::vec2 p1, glm::vec2 p2) {
-    double length = glm::distance(p1, p2);
-    return glm::vec2((double)(p2.x - p1.x) / length, (double)(p2.y - p1.y) / length);
+	return glm::normalize(p2 - p1);
 }
 
 glm::vec2 ofxVoronoi::getMidPoint(glm::vec2 p1, glm::vec2 p2) {
-    return glm::vec2((double)(p1.x+p2.x)/2,(double)(p1.y+p2.y)/2);
+	return (p1 + p2) / 2.0f;
 }
 
 double ofxVoronoi::getRadians(glm::vec2 p1, glm::vec2 p2) {
